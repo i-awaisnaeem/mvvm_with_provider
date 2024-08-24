@@ -1,0 +1,86 @@
+
+(for example loginApi)
+
+-> SignupView
+-> call AuthViewModel
+-> A var access AuthRepository
+-> Imported BaseServices class & provided NetworkApiServices
+->
+
+1. LoginView
+   |
+   v
+   - **User Action**: User presses "Login" button.
+     ```dart
+     authViewModel.loginApi(data, context);
+     ```
+
+2. AuthViewModel
+   |
+   v
+   - **Set Loading**: Initiates the login process.
+     ```dart
+     setLoading(true);
+     _myRepo.loginApi(data);
+     ```
+
+3. AuthRepository
+   |
+   v
+   -> A var access AuthRepository
+   -> Imported BaseServices class & provided NetworkApiServices
+   - **Network Call**: Delegates to NetworkApiServices.
+     ```dart
+     dynamic response = await _apiServices.getPostApiResponse(AppUrls.loginEndPoint, data);
+     ```
+
+4. NetworkApiServices
+   |
+   v
+   - **HTTP Request**: Sends POST request to server.
+     ```dart
+     Response response = await post(Uri.parse(url), body: data);
+     ```
+
+5. Server
+   |
+   v
+   - **Process Request**: Server processes and responds.
+
+6. NetworkApiServices (Response Handling)
+   |
+   v
+   - **Check Response**: Handles server response.
+     ```dart
+     switch (response.statusCode) {
+       case 200: return jsonDecode(response.body);
+       case 301: throw FetchDataException('Moved Permanently');
+     }
+     ```
+
+7. AuthRepository (Response Handling)
+   |
+   v
+   - **Pass Response**: Returns response or error.
+     ```dart
+     return response;
+     ```
+
+8. AuthViewModel (UI Update)
+   |
+   v
+   - **Handle Result**: Updates UI based on response.
+     ```dart
+     setLoading(false);
+     if (success) Navigator.pushNamed(context, RouteName.HomeScreen);
+     else Utils.flushBarErrorMessage(error.toString(), context);
+     ```
+
+9. LoginView
+   |
+   v
+   - **Update UI**: Reflects success or error.
+     ```dart
+     // Success: Navigate to Home
+     // Error: Show error message
+     ```
